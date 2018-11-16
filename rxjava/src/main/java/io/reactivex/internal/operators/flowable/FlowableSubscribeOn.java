@@ -86,6 +86,7 @@ public final class FlowableSubscribeOn<T> extends AbstractFlowableWithUpstream<T
         public void onSubscribe(Subscription s) {
             if (SubscriptionHelper.setOnce(this.upstream, s)) {
                 long r = requested.getAndSet(0L);
+                System.err.println("requested r = " + r);
                 if (r != 0L) {
                     requestUpstream(r, s);
                 }
@@ -114,6 +115,7 @@ public final class FlowableSubscribeOn<T> extends AbstractFlowableWithUpstream<T
             if (SubscriptionHelper.validate(n)) {
                 Subscription s = this.upstream.get();
                 if (s != null) {
+                    System.err.println("limit n1 = " + n);
                     requestUpstream(n, s);
                 } else {
                     BackpressureHelper.add(requested, n);

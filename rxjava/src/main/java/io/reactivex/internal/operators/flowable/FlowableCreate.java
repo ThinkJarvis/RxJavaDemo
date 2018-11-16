@@ -66,6 +66,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
         }
         }
 
+        System.err.println("requested r1111111111111111111111111");
         t.onSubscribe(emitter);
         try {
             source.subscribe(emitter);
@@ -313,6 +314,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
 
         @Override
         public final void request(long n) {
+            System.err.println("limit n2= " + n);
             if (SubscriptionHelper.validate(n)) {
                 BackpressureHelper.add(this, n);
                 onRequested();
@@ -400,9 +402,11 @@ public final class FlowableCreate<T> extends Flowable<T> {
             }
 
             if (get() != 0) {
+                System.err.println("NoOverflowBaseAsyncEmitter get() = " + get());
                 downstream.onNext(t);
                 BackpressureHelper.produced(this, 1);
             } else {
+                System.err.println("NoOverflowBaseAsyncEmitter onOverflow");
                 onOverflow();
             }
         }
@@ -610,6 +614,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
                 return;
             }
             queue.set(t);
+            System.err.println("limit queue.set =  " + t);
             drain();
         }
 
@@ -635,6 +640,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
 
         @Override
         void onRequested() {
+            System.err.println("limit n3");
             drain();
         }
 
@@ -656,9 +662,11 @@ public final class FlowableCreate<T> extends Flowable<T> {
 
             for (;;) {
                 long r = get();
+                System.err.println("limit r = " + r);
                 long e = 0L;
 
                 while (e != r) {
+
                     if (isCancelled()) {
                         q.lazySet(null);
                         return;
@@ -667,7 +675,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
                     boolean d = done;
 
                     T o = q.getAndSet(null);
-
+                    System.err.println("LatestAsyncEmitter getAndSet = " + o  + "  | r = " + r);
                     boolean empty = o == null;
 
                     if (d && empty) {
@@ -711,6 +719,7 @@ public final class FlowableCreate<T> extends Flowable<T> {
                 }
 
                 if (e != 0) {
+                    System.err.println("LatestAsyncEmitter produced");
                     BackpressureHelper.produced(this, e);
                 }
 

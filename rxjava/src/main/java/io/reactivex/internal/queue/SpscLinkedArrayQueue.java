@@ -47,15 +47,18 @@ public final class SpscLinkedArrayQueue<T> implements SimplePlainQueue<T> {
 
     public SpscLinkedArrayQueue(final int bufferSize) {
         int p2capacity = Pow2.roundToPowerOfTwo(Math.max(8, bufferSize));
+        System.err.println("Spsc p2capacity = " + p2capacity + " bufferSize =" + bufferSize);
         int mask = p2capacity - 1;
-        AtomicReferenceArray<Object> buffer = new AtomicReferenceArray<Object>(p2capacity + 1);
+        AtomicReferenceArray<Object> buffer = new AtomicReferenceArray<Object>(p2capacity + 1);//129
         producerBuffer = buffer;
         producerMask = mask;
-        adjustLookAheadStep(p2capacity);
+        adjustLookAheadStep(p2capacity);//producerLookAheadStep = 32;
+
         consumerBuffer = buffer;
-        consumerMask = mask;
-        producerLookAhead = mask - 1; // we know it's all empty to start with
+        consumerMask = mask; //127
+        producerLookAhead = mask - 1; // we know it's all empty to start with //126
         soProducerIndex(0L);
+        System.err.println("Spsc producerLookAheadStep = " + producerLookAheadStep + " | lvProducerIndex = " + lvProducerIndex() + " | producerLookAhead = " + producerLookAhead);
     }
 
     /**
@@ -74,17 +77,23 @@ public final class SpscLinkedArrayQueue<T> implements SimplePlainQueue<T> {
         final int mask = producerMask;
         final int offset = calcWrappedOffset(index, mask);
         if (index < producerLookAhead) {
+            System.err.println("Spsc index = " + index + " | offset = " + offset);
             return writeToQueue(buffer, e, index, offset);
         } else {
             final int lookAheadStep = producerLookAheadStep;
             // go around the buffer or resize if full (unless we hit max capacity)
+            System.err.println("Spsc (index + lookAheadStep) = " + (index + lookAheadStep) + " | mask = " + mask + " | index = " + index + " | lookAheadStep = " + lookAheadStep);
             int lookAheadElementOffset = calcWrappedOffset(index + lookAheadStep, mask);
+            System.err.println("Spsc lookAheadElementOffset = " + lookAheadElementOffset);
             if (null == lvElement(buffer, lookAheadElementOffset)) { // LoadLoad
                 producerLookAhead = index + lookAheadStep - 1; // joy, there's plenty of room
+                System.err.println("Spsc null == lvElement index = " + index + " | offset = " + offset  + " | producerLookAhead = " + producerLookAhead);
                 return writeToQueue(buffer, e, index, offset);
             } else if (null == lvElement(buffer, calcWrappedOffset(index + 1, mask))) { // buffer is not full
+                System.err.println("Spsc 2222222222222222222222222222222");
                 return writeToQueue(buffer, e, index, offset);
             } else {
+                System.err.println("Spsc 333333333333333333333333333");
                 resize(buffer, index, offset, e, mask); // add a buffer and link old to new
                 return true;
             }
@@ -138,6 +147,7 @@ public final class SpscLinkedArrayQueue<T> implements SimplePlainQueue<T> {
         final Object e = lvElement(buffer, offset);// LoadLoad
         boolean isNextBuffer = e == HAS_NEXT;
         if (null != e && !isNextBuffer) {
+            System.err.println("Spsc poll index = " + index);
             soElement(buffer, offset, null);// StoreStore
             soConsumerIndex(index + 1);// this ensures correctness on 32bit platforms
             return (T) e;

@@ -58,6 +58,7 @@ public final class ObservableCreate<T> extends Observable<T> {
 
         @Override
         public void onNext(T t) {
+            System.err.println("Rxjava ObservableCreate onNext Thread.currentThread() = " + Thread.currentThread().getId());
             if (t == null) {
                 onError(new NullPointerException("onNext called with null. Null values are generally not allowed in 2.x operators and sources."));
                 return;
@@ -167,6 +168,7 @@ public final class ObservableCreate<T> extends Observable<T> {
                 return;
             }
             if (get() == 0 && compareAndSet(0, 1)) {
+
                 emitter.onNext(t);
                 if (decrementAndGet() == 0) {
                     return;

@@ -61,7 +61,7 @@ public final class SingleScheduler extends Scheduler {
         executor.lazySet(createExecutor(threadFactory));
     }
 
-    static ScheduledExecutorService createExecutor(ThreadFactory threadFactory) {
+        static ScheduledExecutorService createExecutor(ThreadFactory threadFactory) {
         return SchedulerPoolFactory.create(threadFactory);
     }
 

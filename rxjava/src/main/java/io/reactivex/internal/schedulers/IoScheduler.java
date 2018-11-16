@@ -86,6 +86,7 @@ public final class IoScheduler extends Scheduler {
 
         @Override
         public void run() {
+            System.err.println("CachedWorkerPool run = " + System.currentTimeMillis());
             evictExpiredWorkers();
         }
 
@@ -93,6 +94,7 @@ public final class IoScheduler extends Scheduler {
             if (allWorkers.isDisposed()) {
                 return SHUTDOWN_THREAD_WORKER;
             }
+            //如果驱逐队列不空，就从里面取出一个工人。
             while (!expiringWorkerQueue.isEmpty()) {
                 ThreadWorker threadWorker = expiringWorkerQueue.poll();
                 if (threadWorker != null) {
@@ -211,6 +213,7 @@ public final class IoScheduler extends Scheduler {
                 tasks.dispose();
 
                 // releasing the pool should be the last action
+                //存入expiringWorkerQueue队列。
                 pool.release(threadWorker);
             }
         }

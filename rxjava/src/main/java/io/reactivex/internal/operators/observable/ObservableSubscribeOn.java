@@ -55,6 +55,7 @@ public final class ObservableSubscribeOn<T> extends AbstractObservableWithUpstre
 
         @Override
         public void onNext(T t) {
+            System.err.println("Rxjava ObservableSubscribeOn onNext Thread.currentThread() = " + Thread.currentThread().getId());
             downstream.onNext(t);
         }
 
@@ -93,6 +94,7 @@ public final class ObservableSubscribeOn<T> extends AbstractObservableWithUpstre
 
         @Override
         public void run() {
+            System.err.println("Rxjava ObservableSubscribeOn Thread.currentThread() = " + Thread.currentThread().getId());
             source.subscribe(parent);
         }
     }

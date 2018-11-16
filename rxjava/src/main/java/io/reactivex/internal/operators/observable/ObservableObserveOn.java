@@ -100,7 +100,6 @@ public final class ObservableObserveOn<T> extends AbstractObservableWithUpstream
                         return;
                     }
                 }
-
                 queue = new SpscLinkedArrayQueue<T>(bufferSize);
 
                 downstream.onSubscribe(this);
@@ -197,7 +196,7 @@ public final class ObservableObserveOn<T> extends AbstractObservableWithUpstream
                     if (empty) {
                         break;
                     }
-
+                    System.err.println("Rxjava ObservableObserveOn OnNext Thread.currentThread() = " + Thread.currentThread().getId());
                     a.onNext(v);
                 }
 

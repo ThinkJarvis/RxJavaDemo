@@ -138,6 +138,7 @@ final Scheduler scheduler;
 
         @Override
         public final void request(long n) {
+            System.err.println("fObserverOn request = " + n);
             if (SubscriptionHelper.validate(n)) {
                 BackpressureHelper.add(requested, n);
                 trySchedule();
@@ -282,7 +283,6 @@ final Scheduler scheduler;
                         queue = f;
 
                         downstream.onSubscribe(this);
-
                         s.request(prefetch);
 
                         return;
@@ -292,7 +292,7 @@ final Scheduler scheduler;
                 queue = new SpscArrayQueue<T>(prefetch);
 
                 downstream.onSubscribe(this);
-
+                System.err.println("fObserverOn prefetch = " + prefetch);
                 s.request(prefetch);
             }
         }
@@ -369,12 +369,13 @@ final Scheduler scheduler;
 
             final Subscriber<? super T> a = downstream;
             final SimpleQueue<T> q = queue;
-
+            System.err.println("fObserverOn runAsync 111111111111111111111111 = ");
             long e = produced;
 
             for (;;) {
 
                 long r = requested.get();
+                System.err.println("fObserverOn runAsync r = " + r);
 
                 while (e != r) {
                     boolean d = done;
@@ -397,10 +398,12 @@ final Scheduler scheduler;
                     boolean empty = v == null;
 
                     if (checkTerminated(d, empty, a)) {
+
                         return;
                     }
 
                     if (empty) {
+                        System.err.println("fObserverOn runAsync 333333333333333333 = ");
                         break;
                     }
 
@@ -411,6 +414,7 @@ final Scheduler scheduler;
                         if (r != Long.MAX_VALUE) {
                             r = requested.addAndGet(-e);
                         }
+                        System.err.println("limit = " + limit +  "   | e = " + e);
                         upstream.request(e);
                         e = 0L;
                     }
@@ -425,6 +429,7 @@ final Scheduler scheduler;
                     produced = e;
                     missed = addAndGet(-missed);
                     if (missed == 0) {
+                        System.err.println("fObserverOn runAsync 44444444444444444444444 = ");
                         break;
                     }
                 } else {
